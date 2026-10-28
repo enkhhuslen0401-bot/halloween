@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spooky Magic Date - Halloween Special 🎃</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0514;
+            --card-bg: rgba(23, 11, 38, 0.95);
+            --orange-primary: #ff7700;
+            --orange-glow: #ff9e00;
+            --purple-accent: #9d4edd;
+            --text-light: #f3e9dc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(157, 78, 221, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(255, 119, 0, 0.15) 0%, transparent 40%);
+        }
+
+        .bat {
+            position: absolute;
+            font-size: 24px;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: floatBat 12s infinite linear;
+        }
+
+        @keyframes floatBat {
+            0% { transform: translate(-100px, 100vh) rotate(0deg); }
+            100% { transform: translate(100vw, -100px) rotate(20deg); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border: 2px solid var(--orange-primary);
+            box-shadow: 0 0 30px rgba(255, 119, 0, 0.3), inset 0 0 15px rgba(157, 78, 221, 0.2);
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        h1, h2 {
+            font-family: 'Creepster', cursive;
+            letter-spacing: 2px;
+            color: var(--orange-glow);
+            text-shadow: 0 0 10px rgba(255, 158, 0, 0.5);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #d1c7bd;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--orange-glow);
+            margin: 0 auto 15px auto;
+            display: block;
+            box-shadow: 0 0 15px var(--orange-glow);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--orange-primary), #ff0055);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3deg) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 0, 85, 0.6);
+        }
+
+        .grid-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-card:hover {
+            background: rgba(255, 119, 0, 0.1);
+            border-color: rgba(255, 119, 0, 0.5);
+        }
+
+        .option-card.selected {
+            background: rgba(157, 78, 221, 0.2);
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .option-card input { display: none; }
+
+        .option-icon { font-size: 2rem; }
+        .option-label { font-size: 0.95rem; font-weight: 700; text-align: center; }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--purple-accent);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .step-box {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .step-box.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .heart-rain {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .falling-heart {
+            position: absolute;
+            font-size: 24px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bat" style="top: 10%; animation-duration: 14s;">🦇</div>
+    <div class="bat" style="top: 40%; animation-duration: 10s; animation-delay: 2s;">🦇</div>
+    <div class="bat" style="top: 70%; animation-duration: 16s; animation-delay: 5s;">🦇</div>
+
+    <div class="heart-rain" id="heart-rain"></div>
+
+    <div class="container">
+
+        <!-- ALHAM 0: GOOGLE LOGIN -->
+        <div class="step-box active" id="step-0">
+            <h1>🎃 TRICK OR TREAT? 👻</h1>
+            <p>Халлоуины нууцлаг урилгыг нээхийн тулд Google аккаунтаараа нэвтрээрэй!</p>
+            <button class="btn" id="google-login-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1H12v3.33h5.37c-.23 1.22-1 2.26-2.12 2.98v2.48h3.43c2.01-1.85 3.17-4.58 3.17-7.79 0-.68-.06-1.34-.17-2.02z"/><path fill="currentColor" d="M12 21c2.87 0 5.28-.95 7.04-2.58l-3.43-2.48c-.95.64-2.17 1.02-3.61 1.02-2.78 0-5.13-1.88-5.97-4.41H2.47v2.56A9.99 9.99 0 0 0 12 21z"/><path fill="currentColor" d="M6.03 12.55c-.21-.64-.33-1.33-.33-2.05s.12-1.41.33-2.05V5.89H2.47A9.99 9.99 0 0 0 1 10.5c0 1.61.39 3.14 1.47 4.61l3.56-2.56z"/><path fill="currentColor" d="M12 4.19c1.56 0 2.96.54 4.06 1.59l3.05-3.05C17.27 1.05 14.86 0 12 0 7.42 0 3.47 2.56 1.47 6.47l3.56 2.56c.84-2.53 3.19-4.41 5.97-4.41z"/></svg>
+                Google-ээр нэвтрэх
+            </button>
+        </div>
+
+        <!-- MAIN FORM -->
+        <form action="https://api.web3forms.com/submit" method="POST" id="main-form">
+            
+            <!-- Таны Web3Forms Key -->
+            <input type="hidden" name="access_key" value="91dd15f0-f236-4914-b632-f698bb5721d5">
+            
+            <input type="hidden" name="User_Name" id="input-user-name">
+            <input type="hidden" name="User_Email" id="input-user-email">
+            <input type="hidden" name="Subject" value="🎃 Crush чинь Халлоуины урилгад хариуллаа!">
+
+            <!-- ALHAM 1: VINDSEEN ASUULT -->
+            <div class="step-box" id="step-1">
+                <img id="user-photo" class="user-avatar" src="" alt="Avatar" style="display:none;">
+                <h2 id="welcome-title">Сайн уу! 🧙‍♀️</h2>
+                <p>Энэ Халлоуинаар надтай хамт цагийг сонирхолтой өнгөрүүлэх үү?</p>
+
+                <div class="grid-options">
+                    <label class="option-card">
+                        <input type="checkbox" name="Activities[]" value="Хоолонд орох" class="activity-check" data-target="food">
+                        <div class="option-icon">🍕</div>
+                        <div class="option-label">Хоолонд орох</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="checkbox" name="Activities[]" value="Кино үзэх" class="activity-check" data-target="movie">
+                        <div class="option-icon">🍿</div>
+                        <div class="option-label">Кино үзэх</div>
+                    </label>
+                </div>
+
+                <button type="button" class="btn" id="to-step-2">Үргэлжлүүлэх 💖</button>
+            </div>
+
+            <!-- ALHAM 2: HOOL -->
+            <div class="step-box" id="step-2-food">
+                <h2>🍕 Ямар хоол идэх үү?</h2>
+                <p>Өөрийн дуртай хоол ба ресторанаа сонгоорой!</p>
+
+                <div class="grid-options">
+                    <label class="option-card">
+                        <input type="radio" name="Food_Type" value="Солонгос хоол">
+                        <div class="option-icon">🍜</div>
+                        <div class="option-label">Солонгос хоол</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Food_Type" value="Итали пицца/паста">
+                        <div class="option-icon">🍝</div>
+                        <div class="option-label">Итали пицца</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Food_Type" value="Япон суши/рамен">
+                        <div class="option-icon">🍣</div>
+                        <div class="option-label">Япон суши</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Food_Type" value="Бургер & Түргэн хоол">
+                        <div class="option-icon">🍔</div>
+                        <div class="option-label">Түргэн хоол</div>
+                    </label>
+                </div>
+
+                <input type="text" name="Specific_Restaurant" placeholder="Ормоор байгаа ресторанаа бичиж болно...">
+
+                <button type="button" class="btn" id="to-next-from-food">Дараагийнх 👉</button>
+            </div>
+
+            <!-- ALHAM 2: KINO -->
+            <div class="step-box" id="step-2-movie">
+                <h2>🍿 Ямар кино үзэх үү?</h2>
+                <p>Халлоуины уур амьсгалд тааруулах уу?</p>
+
+                <div class="grid-options">
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Genre" value="Аймшгийн (Spooky/Horror)">
+                        <div class="option-icon">👻</div>
+                        <div class="option-label">Аймшгийн</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Genre" value="Романтик инээдэм">
+                        <div class="option-icon">💖</div>
+                        <div class="option-label">Романтик</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Genre" value="Адал явдалтай">
+                        <div class="option-icon">🎬</div>
+                        <div class="option-label">Адал явдалтай</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Genre" value="Анимаци">
+                        <div class="option-icon">🎃</div>
+                        <div class="option-label">Анимаци</div>
+                    </label>
+                </div>
+
+                <div class="grid-options">
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Location" value="Кино театрт">
+                        <div class="option-icon">🎟️</div>
+                        <div class="option-label">Кино театрт</div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="Movie_Location" value="Гэртээ тухтай (Netflix)">
+                        <div class="option-icon">🛋️</div>
+                        <div class="option-label">Гэртээ тухтай</div>
+                    </label>
+                </div>
+
+                <button type="button" class="btn" id="to-final-step">Сүүлчийн алхам 🎃</button>
+            </div>
+
+            <!-- ALHAM 3: MESSAGE -->
+            <div class="step-box" id="step-3">
+                <h2>✨ Надад хэлэх мессеж залуулах уу?</h2>
+                <p>Хэзээ уулзаж болох болон нэмэлт хүсэлтээ бичээрэй!</p>
+
+                <textarea name="Personal_Message" rows="3" placeholder="Энд мессежээ бичээрэй..."></textarea>
+
+                <button type="submit" class="btn" id="submit-btn">
+                    Илгээх & Болзоог баталгаажуулах 💖
+                </button>
+            </div>
+        </form>
+
+        <!-- AMJILTTAI ILGEEGDSEN -->
+        <div class="step-box" id="step-success">
+            <h1>🎉 ИЛГЭЭГДЛЭЭ! 🎉</h1>
+            <p style="font-size: 1.3rem; color: #ff9e00;">Урилгыг хүлээж авсанд баярлалаа! Тун удахгүй холбогдох болно! 👻✨</p>
+            <div style="font-size: 4rem; margin-top: 20px;">💖🎃✨</div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Таны Firebase тохиргоо
+        const firebaseConfig = {
+            apiKey: "AIzaSyDc917NZyQRMcIHz0kTuuWZEzjoAms3Koc",
+            authDomain: "halloween-92648.firebaseapp.com",
+            projectId: "halloween-92648",
+            storageBucket: "halloween-92648.firebasestorage.app",
+            messagingSenderId: "119420997259",
+            appId: "1:119420997259:web:e3129f04faf6ac3992ce8e",
+            measurementId: "G-MNLKDH2NM1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const step0 = document.getElementById('step-0');
+        const step1 = document.getElementById('step-1');
+        const step2Food = document.getElementById('step-2-food');
+        const step2Movie = document.getElementById('step-2-movie');
+        const step3 = document.getElementById('step-3');
+        const stepSuccess = document.getElementById('step-success');
+
+        let selectedActivities = [];
+
+        // Google Login Action
+        document.getElementById('google-login-btn').addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    const user = result.user;
+                    document.getElementById('input-user-name').value = user.displayName;
+                    document.getElementById('input-user-email').value = user.email;
+                    document.getElementById('welcome-title').innerText = `Сайн уу, ${user.displayName}! 🧙‍♀️`;
+                    
+                    if (user.photoURL) {
+                        const avatar = document.getElementById('user-photo');
+                        avatar.src = user.photoURL;
+                        avatar.style.display = 'block';
+                    }
+
+                    step0.classList.remove('active');
+                    step1.classList.add('active');
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error);
+                    alert("Google нэвтрэхэд алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу!");
+                });
+        });
+
+        // Option Cards Toggle
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const input = card.querySelector('input');
+                if (input.type === 'radio') {
+                    const name = input.name;
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                        r.closest('.option-card').classList.remove('selected');
+                    });
+                    input.checked = true;
+                    card.classList.add('selected');
+                } else if (input.type === 'checkbox') {
+                    input.checked = !input.checked;
+                    card.classList.toggle('selected', input.checked);
+                }
+            });
+        });
+
+        // Navigation Handlers
+        document.getElementById('to-step-2').addEventListener('click', () => {
+            const checks = document.querySelectorAll('.activity-check:checked');
+            selectedActivities = Array.from(checks).map(c => c.dataset.target);
+
+            if (selectedActivities.length === 0) {
+                alert("Адаглаад нэг сонголт хийнэ үү! 🎃");
+                return;
+            }
+
+            step1.classList.remove('active');
+            if (selectedActivities.includes('food')) {
+                step2Food.classList.add('active');
+            } else if (selectedActivities.includes('movie')) {
+                step2Movie.classList.add('active');
+            } else {
+                step3.classList.add('active');
+            }
+        });
+
+        document.getElementById('to-next-from-food').addEventListener('click', () => {
+            step2Food.classList.remove('active');
+            if (selectedActivities.includes('movie')) {
+                step2Movie.classList.add('active');
+            } else {
+                step3.classList.add('active');
+            }
+        });
+
+        document.getElementById('to-final-step').addEventListener('click', () => {
+            step2Movie.classList.remove('active');
+            step3.classList.add('active');
+        });
+
+        // Submit Form
+        const form = document.getElementById('main-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            
+            fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            })
+            .then(async (response) => {
+                if (response.status === 200) {
+                    step3.classList.remove('active');
+                    stepSuccess.classList.add('active');
+                    triggerHeartsAndConfetti();
+                } else {
+                    alert("Алдаа гарлаа. Дахин оролдоно уу!");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Илгээхэд алдаа гарлаа.");
+            });
+        });
+
+        // Heart Rain and Confetti Effect
+        function triggerHeartsAndConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            const rainContainer = document.getElementById('heart-rain');
+            const hearts = ['💖', '🎃', '✨', '💕', '👻', '❤️'];
+
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'falling-heart';
+                    heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                    rainContainer.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 150);
+            }
+        }
+    </script>
+</body>
+</html>
